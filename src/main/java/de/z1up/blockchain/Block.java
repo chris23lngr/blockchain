@@ -1,93 +1,157 @@
 package de.z1up.blockchain;
 
-import de.z1up.blockchain.crypt.SHA256;
+import com.google.common.hash.Hashing;
+import org.apache.commons.lang3.StringUtils;
 
-public class Block<T> {
+import java.nio.charset.StandardCharsets;
 
-    private String hash;
-    private T[] content;
+/**
+ * A Block is an Object, which will be stored in
+ * a {@code Blockchain}. Blocks should always be final,
+ * since their values aren't supposed to change anymore
+ * after the block is generated.
+ *
+ * @author Christoph Langer
+ * @see Blockchain
+ * @version 1.0
+ */
+public class Block
+        extends Object {
 
-    private String previousHash;
-    private long timestamp;
-    private int nonce = 0;
+    // Class variables
+    private String      hash;
 
-    public Block(T[] content, String previousHash, long timestamp) {
+    private String[]    content;
+    private long        timestamp;
+    private String      prevHash;
+    private int         nonce;
+
+
+    // Constructors
+    public Block(String hash,
+                 String[] content,
+                 String prevHash) {
+
+        this.hash       = hash;
+        this.content    = content;
+        this.timestamp  = System.currentTimeMillis();
+        this.prevHash   = prevHash;
+    }
+
+    public Block(String[] content,
+                 String prevHash) {
+
         this.content = content;
-        this.previousHash = previousHash;
-        this.timestamp = timestamp;
+        this.prevHash = prevHash;
+        this.timestamp  = System.currentTimeMillis();
     }
 
-    // Getters and Setter
+    // Methods
+
+    /**
+     * The {@code mine()} method mines a Block. Mining
+     * a Block means, that a hash value is generated
+     * from the content, timestamp, previous hash and
+     * the nonce using the SHA256.
+     *
+     * The method returns the current Block, but with
+     * a set hash value.
+     *
+     * @return The final, mined Block
+     */
+    public Block mine() {
+
+        String hashableValues = "" + this.getContent() + this.getTimestamp() + this.getPrevHash() + this.getNonce();
+
+        this.hash = Hashing.sha256().hashString(hashableValues, StandardCharsets.UTF_8).toString();
+
+        return this;
+    }
+
+    // Getters and Setters
+
+    /**
+     * Returns the generated Hash for the given Block.
+     * Returns an empty String if the hash is null.
+     *
+     * @return the current Hash
+     */
     public String getHash() {
-        return hash;
+        return (StringUtils.isEmpty(this.hash) ? "" : this.hash);
     }
 
+    /**
+     * Sets the current Hash value.
+     *
+     * @param hash
+     *        The new hash value
+     */
     public void setHash(String hash) {
         this.hash = hash;
     }
 
-    public T[] getContent() {
+    /**
+     * Returns the current content stored in
+     * the given block.
+     *
+     * @return The content
+     */
+    public String[] getContent() {
         return content;
     }
 
-    public void setContent(T[] content) {
-        this.content = content;
-    }
-
-    public String getPreviousHash() {
-        return previousHash;
-    }
-
-    public void setPreviousHash(String previousHash) {
-        this.previousHash = previousHash;
-    }
-
+    /**
+     * Returns the timestamp which indicates when the
+     * block was created.
+     *
+     * @return The timestamp of the block
+     */
     public long getTimestamp() {
         return timestamp;
     }
 
-    public void setTimestamp(long timestamp) {
-        this.timestamp = timestamp;
+    /**
+     * Returns the Hash value of the previous Block in
+     * the Blockchain.
+     *
+     * Important: Value might not match with the actual
+     * previous Hash from the Blockchain, since the value
+     * is set manually.
+     *
+     * @return The previous Hash
+     */
+    public String getPrevHash() {
+        return prevHash;
     }
 
+    /**
+     * Stores the hash value of the previous Block in
+     * the Blockchain.
+     *
+     * @param prevHash
+     *        The previous hash value
+     */
+    public void setPrevHash(String prevHash) {
+        this.prevHash = prevHash;
+    }
+
+    /**
+     * Returns the current nonce value.
+     *
+     * @return Current nonce.
+     */
     public int getNonce() {
         return nonce;
     }
 
+    /**
+     * Assigns a new value to the nonce variable.
+     *
+     * @param nonce
+     *        The new nonce value.
+     */
     public void setNonce(int nonce) {
         this.nonce = nonce;
-    }
-
-
-    public String getHashableValues() {
-        return (this.content + this.previousHash + this.timestamp + this.nonce);
-    }
-
-    public Block mine(final int dif) {
-
-        final String difS = this.difToString(dif);
-        this.hash = SHA256.of(this.getHashableValues());
-
-        while (!(this.hash.substring(0, dif).equals(difS))) {
-            this.nonce = this.nonce + 1;
-            this.hash = SHA256.of(this.getHashableValues());
-            //System.out.println(this.hash);
-        }
-
-        System.out.println("Block mined: " + this.hash);
-
-        return this;
-
-    }
-
-    private String difToString(final int dif) {
-        String s = "";
-        int i = 0;
-        while (i < dif) {
-            i++;
-            s = s + "0";
-        }
-        return s;
     }
 
 }
