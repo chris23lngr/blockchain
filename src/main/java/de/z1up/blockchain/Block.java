@@ -19,11 +19,16 @@ public class Block
         extends Object {
 
     // Class variables
+    /** The hash value of the Block */
     private String      hash;
 
-    private String[]    content;
-    private long        timestamp;
+    /** The content stored in the Block */
+    private final String[]    content;
+    /** The timestamp the Block was generated */
+    private final long        timestamp;
+    /** The hash value of the previous Block in the chain */
     private String      prevHash;
+    /** Nonce value to generate a fitting hash value */
     private int         nonce;
 
 
@@ -61,7 +66,7 @@ public class Block
      */
     public Block mine() {
 
-        String hashableValues = "" + this.getContent() + this.getTimestamp() + this.getPrevHash() + this.getNonce();
+        final String hashableValues = "" + this.getContent() + this.getTimestamp() + this.getPrevHash() + this.getNonce();
 
         this.hash = Hashing.sha256().hashString(hashableValues, StandardCharsets.UTF_8).toString();
 

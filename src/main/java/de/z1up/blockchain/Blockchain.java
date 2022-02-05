@@ -4,21 +4,21 @@ import org.apache.commons.lang3.ArrayUtils;
 
 /**
  * A Blockchain is a collection of Blocks ordered by time.
- * Blocks can only by appended to the end of the chain.
+ * Blocks can only be appended to the end of the chain.
  *
  * @author Christoph Langer
- * @see Block
  * @version 1.0
  */
 public class Blockchain {
 
     /** A Genesis Block is the first Block to be stored in a Blockchain. */
-    private Block       genesis;
-    private Block[]     chain;
+    private final Block       genesis;
+    private Block[]           chain;
 
 
     public Blockchain() {
 
+        //
         this.chain = new Block[]{};
         this.genesis = this.getGenesisBlock();
         this.addBlock(this.getGenesisBlock());
